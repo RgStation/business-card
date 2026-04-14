@@ -1,21 +1,38 @@
 import { GLTFLoader } from "https://unpkg.com/three@0.126.0/examples/jsm/loaders/GLTFLoader.js";
 
+// 🔍 DEBUG
+console.log("MAIN JS LOADED");
+console.log("MINDAR:", window.MINDAR);
+
+if (!window.MINDAR) {
+  alert("MindAR NOT LOADED");
+}
+
 const THREE = window.MINDAR.IMAGE.THREE;
 
 const startButton = document.querySelector("#startButton");
 
-// ✅ iOS-safe käynnistys
-startButton.addEventListener("click", () => {
+startButton.addEventListener("click", async () => {
+  console.log("BUTTON CLICKED");
+
   startButton.style.display = "none";
-  startAR();
+
+  try {
+    await startAR();
+  } catch (e) {
+    console.error("AR ERROR:", e);
+    alert("AR failed: " + e.message);
+  }
 });
 
 async function startAR() {
 
   console.log("START AR FUNCTION");
 
+  const container = document.querySelector("#ar-container");
+
   const mindARThree = new window.MINDAR.IMAGE.MindARThree({
-    container: document.querySelector("#ar-container"),
+    container: container,
     imageTargetSrc: "assets/targets/businesscard.mind",
   });
 
@@ -31,23 +48,29 @@ async function startAR() {
   // 🔍 DEBUG targetille
   anchor.onTargetFound = () => {
     console.log("TARGET FOUND");
+    robot.visible = true;
   };
 
   anchor.onTargetLost = () => {
     console.log("TARGET LOST");
+    robot.visible = false;
   };
 
   // 🤖 ROBOTTI
   const loader = new GLTFLoader();
-  const gltf = await new Promise(resolve => {
-    loader.load("assets/models/RobotExpressive.glb", resolve);
+
+  const gltf = await new Promise((resolve, reject) => {
+    loader.load(
+      "assets/models/RobotExpressive.glb",
+      resolve,
+      undefined,
+      reject
+    );
   });
 
   const robot = gltf.scene;
   robot.scale.set(0.4, 0.4, 0.4);
   robot.position.set(0, -0.3, 0);
-
-  // aluksi piilossa → näkyy kun target löytyy
   robot.visible = false;
 
   anchor.group.add(robot);
@@ -90,26 +113,14 @@ async function startAR() {
   anchor.group.add(nameText);
   anchor.group.add(roleText);
 
-  // 🔁 näkyvyys targetin mukaan
-  anchor.onTargetFound = () => {
-    console.log("TARGET FOUND");
-    robot.visible = true;
-  };
-
-  anchor.onTargetLost = () => {
-    console.log("TARGET LOST");
-    robot.visible = false;
-  };
-
-  // 🚀 START
+  // 🚀 START AR
+  console.log("Starting MindAR...");
   await mindARThree.start();
+  console.log("MindAR STARTED");
 
   renderer.setAnimationLoop(() => {
     mixer.update(0.016);
-
-    // pieni pyöritys
     robot.rotation.y += 0.01;
-
     renderer.render(scene, camera);
   });
 }
