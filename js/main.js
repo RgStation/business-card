@@ -2,7 +2,7 @@ import * as THREE from "https://unpkg.com/three@0.126.0/build/three.module.js";
 import { GLTFLoader } from "https://unpkg.com/three@0.126.0/examples/jsm/loaders/GLTFLoader.js";
 
 const THREEJS = window.MINDAR.IMAGE.THREE;
-
+console.log("Starting AR");
 async function startAR() {
 
   const mindARThree = new window.MINDAR.IMAGE.MindARThree({
