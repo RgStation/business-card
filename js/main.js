@@ -15,7 +15,7 @@ async function startAR() {
   console.log("START AR FUNCTION");
 
   const mindARThree = new window.MINDAR.IMAGE.MindARThree({
-    container: document.body,
+    container: document.querySelector("#ar-container"),
     imageTargetSrc: "assets/targets/businesscard.mind",
   });
 
