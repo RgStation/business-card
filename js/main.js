@@ -127,7 +127,11 @@ async function startAR() {
 
   // 🚀 START AR
   console.log("Starting MindAR...");
-  await mindARThree.start();
+  await mindARThree.start({
+    uiLoading: "yes",
+    uiScanning: "yes",
+    uiError: "yes"
+  });
   console.log("MindAR STARTED");
 
   renderer.setAnimationLoop(() => {
