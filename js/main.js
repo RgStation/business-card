@@ -19,6 +19,15 @@ async function startAR() {
   // ANCHOR
   const anchor = mindARThree.addAnchor(0);
 
+    // 🔍 DEBUG (LISÄÄ TÄHÄN)
+    anchor.onTargetFound = () => {
+    console.log("TARGET FOUND");
+    };
+
+    anchor.onTargetLost = () => {
+    console.log("TARGET LOST");
+    };
+
   // 🤖 ROBOTTI
   const loader = new GLTFLoader();
   const gltf = await new Promise(resolve => {
