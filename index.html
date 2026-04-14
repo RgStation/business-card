@@ -3,40 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <title>AR Business Card</title>
+
   <style>
-    body { margin: 0; overflow: hidden; }
-    #startButton {
-      position: absolute;
-      top: 50%;
-      left: 60%;
-      transform: translate(-50%, -50%);
-      z-index: 2;
+    body {
+      margin: 0;
+      overflow: hidden;
     }
+
     #ar-container {
-      width: 100vw;
-      height: 100vh;
       position: fixed;
       top: 0;
       left: 0;
-      z-index: 1;
+      width: 100vw;
+      height: 100vh;
     }
   </style>
 </head>
+
 <body>
 
-<button id="startButton">Start AR</button>
-<div id="ar-container"></div>
+  <!-- AR container -->
+  <div id="ar-container"></div>
 
-<!-- 🔥 TÄMÄ ENSIN -->
-<script src="libs/mindar.js"></script>
+  <!-- MindAR (lokaali tiedosto!) -->
+  <script src="libs/mindar.js"></script>
 
-<!-- 🔥 SITTEN -->
-<script>
-  window.tf = window.MINDAR.IMAGE.tf;
-</script>
+  <!-- TF fix -->
+  <script>
+    if (window.MINDAR && window.MINDAR.IMAGE) {
+      window.tf = window.MINDAR.IMAGE.tf;
+    } else {
+      console.error("MindAR not loaded!");
+    }
+  </script>
 
-<!-- 🔥 VIIMEISENÄ -->
-<script type="module" src="js/main.js"></script>
+  <!-- MAIN -->
+  <script type="module" src="js/main.js"></script>
 
 </body>
 </html>
