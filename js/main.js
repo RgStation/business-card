@@ -8,7 +8,12 @@ startButton.addEventListener("click", async () => {
   startButton.style.display = "none";
 
   // 🔥 iOS kamera fix
+  try {
   await navigator.mediaDevices.getUserMedia({ video: true });
+  console.log("CAMERA OK");
+} catch (e) {
+  console.error("CAMERA ERROR:", e);
+}
 
   startAR();
 });
