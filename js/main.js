@@ -1,12 +1,22 @@
 import { GLTFLoader } from "https://unpkg.com/three@0.126.0/examples/jsm/loaders/GLTFLoader.js";
 
-// 🔍 DEBUG
-console.log("MAIN JS LOADED");
-console.log("MINDAR:", window.MINDAR);
-
-if (!window.MINDAR) {
-  alert("MindAR NOT LOADED");
+// 🔥 WAIT FOR MINDAR (FIX)
+function waitForMindAR() {
+  return new Promise((resolve) => {
+    const check = () => {
+      if (window.MINDAR && window.MINDAR.IMAGE) {
+        resolve();
+      } else {
+        requestAnimationFrame(check);
+      }
+    };
+    check();
+  });
 }
+
+await waitForMindAR();
+
+console.log("MindAR loaded:", window.MINDAR);
 
 const THREE = window.MINDAR.IMAGE.THREE;
 
@@ -38,25 +48,27 @@ async function startAR() {
 
   const { renderer, scene, camera } = mindARThree;
 
-  // 💡 VALO
+  // 💡 LIGHT
   const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
   scene.add(light);
 
   // 🎯 ANCHOR
   const anchor = mindARThree.addAnchor(0);
 
-  // 🔍 DEBUG targetille
+  let robot;
+
+  // 🔍 DEBUG target
   anchor.onTargetFound = () => {
     console.log("TARGET FOUND");
-    robot.visible = true;
+    if (robot) robot.visible = true;
   };
 
   anchor.onTargetLost = () => {
     console.log("TARGET LOST");
-    robot.visible = false;
+    if (robot) robot.visible = false;
   };
 
-  // 🤖 ROBOTTI
+  // 🤖 LOAD MODEL
   const loader = new GLTFLoader();
 
   const gltf = await new Promise((resolve, reject) => {
@@ -68,19 +80,19 @@ async function startAR() {
     );
   });
 
-  const robot = gltf.scene;
+  robot = gltf.scene;
   robot.scale.set(0.4, 0.4, 0.4);
   robot.position.set(0, -0.3, 0);
   robot.visible = false;
 
   anchor.group.add(robot);
 
-  // 🔄 ANIMAATIO
+  // 🎬 ANIMATION
   const mixer = new THREE.AnimationMixer(robot);
   const idle = mixer.clipAction(gltf.animations[2]);
   idle.play();
 
-  // 📝 TEKSTI
+  // 📝 TEXT
   const createText = (text, y) => {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
@@ -120,7 +132,7 @@ async function startAR() {
 
   renderer.setAnimationLoop(() => {
     mixer.update(0.016);
-    robot.rotation.y += 0.01;
+    if (robot) robot.rotation.y += 0.01;
     renderer.render(scene, camera);
   });
 }
