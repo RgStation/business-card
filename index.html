@@ -3,12 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <title>AR Business Card</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    #startButton {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 20px 30px;
+      font-size: 18px;
+      background: black;
+      color: white;
+      border: none;
+      z-index: 10;
+    }
+  </style>
 </head>
 <body>
 
+<button id="startButton">Start AR</button>
+
+<!-- MindAR -->
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"></script>
 
 <script>
+  console.log("MindAR:", window.MINDAR);
   window.tf = window.MINDAR.IMAGE.tf;
 </script>
 

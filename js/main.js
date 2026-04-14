@@ -1,9 +1,21 @@
-import * as THREE from "https://unpkg.com/three@0.126.0/build/three.module.js";
 import { GLTFLoader } from "https://unpkg.com/three@0.126.0/examples/jsm/loaders/GLTFLoader.js";
 
-const THREEJS = window.MINDAR.IMAGE.THREE;
-console.log("Starting AR");
+const THREE = window.MINDAR.IMAGE.THREE;
+
+const startButton = document.querySelector("#startButton");
+
+startButton.addEventListener("click", async () => {
+  startButton.style.display = "none";
+
+  // 🔥 iOS kamera fix
+  await navigator.mediaDevices.getUserMedia({ video: true });
+
+  startAR();
+});
+
 async function startAR() {
+
+  console.log("Starting AR");
 
   const mindARThree = new window.MINDAR.IMAGE.MindARThree({
     container: document.body,
@@ -13,20 +25,20 @@ async function startAR() {
   const { renderer, scene, camera } = mindARThree;
 
   // VALO
-  const light = new THREEJS.HemisphereLight(0xffffff, 0xbbbbff, 1);
+  const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
   scene.add(light);
 
   // ANCHOR
   const anchor = mindARThree.addAnchor(0);
 
-    // 🔍 DEBUG (LISÄÄ TÄHÄN)
-    anchor.onTargetFound = () => {
+  // 🔍 DEBUG
+  anchor.onTargetFound = () => {
     console.log("TARGET FOUND");
-    };
+  };
 
-    anchor.onTargetLost = () => {
+  anchor.onTargetLost = () => {
     console.log("TARGET LOST");
-    };
+  };
 
   // 🤖 ROBOTTI
   const loader = new GLTFLoader();
@@ -41,11 +53,11 @@ async function startAR() {
   anchor.group.add(robot);
 
   // 🔄 ANIMAATIO
-  const mixer = new THREEJS.AnimationMixer(robot);
+  const mixer = new THREE.AnimationMixer(robot);
   const idle = mixer.clipAction(gltf.animations[2]);
   idle.play();
 
-  // 📝 TEKSTI (nimi + rooli)
+  // 📝 TEKSTI
   const createText = (text, y) => {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
@@ -57,18 +69,17 @@ async function startAR() {
     ctx.font = "40px Arial";
     ctx.fillText(text, 50, 150);
 
-    const texture = new THREEJS.CanvasTexture(canvas);
+    const texture = new THREE.CanvasTexture(canvas);
 
-    const material = new THREEJS.MeshBasicMaterial({ map: texture, transparent: true });
-    const geometry = new THREEJS.PlaneGeometry(1, 0.5);
+    const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
+    const geometry = new THREE.PlaneGeometry(1, 0.5);
 
-    const mesh = new THREEJS.Mesh(geometry, material);
+    const mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(0, y, 0);
 
     return mesh;
   };
 
-  // Kortin tiedot
   const nameText = createText("Ronja Grohn", 0.8);
   const roleText = createText("Engineering student", 0.4);
 
@@ -79,12 +90,7 @@ async function startAR() {
 
   renderer.setAnimationLoop(() => {
     mixer.update(0.016);
-
-    // pieni pyöritys
     robot.rotation.y += 0.01;
-
     renderer.render(scene, camera);
   });
 }
-
-startAR();
