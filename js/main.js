@@ -4,23 +4,15 @@ const THREE = window.MINDAR.IMAGE.THREE;
 
 const startButton = document.querySelector("#startButton");
 
-startButton.addEventListener("click", async () => {
+// ✅ iOS-safe käynnistys
+startButton.addEventListener("click", () => {
   startButton.style.display = "none";
-
-  // 🔥 iOS kamera fix
-  try {
-  await navigator.mediaDevices.getUserMedia({ video: true });
-  console.log("CAMERA OK");
-} catch (e) {
-  console.error("CAMERA ERROR:", e);
-}
-
   startAR();
 });
 
 async function startAR() {
 
-  console.log("Starting AR");
+  console.log("START AR FUNCTION");
 
   const mindARThree = new window.MINDAR.IMAGE.MindARThree({
     container: document.body,
@@ -29,14 +21,14 @@ async function startAR() {
 
   const { renderer, scene, camera } = mindARThree;
 
-  // VALO
+  // 💡 VALO
   const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
   scene.add(light);
 
-  // ANCHOR
+  // 🎯 ANCHOR
   const anchor = mindARThree.addAnchor(0);
 
-  // 🔍 DEBUG
+  // 🔍 DEBUG targetille
   anchor.onTargetFound = () => {
     console.log("TARGET FOUND");
   };
@@ -54,6 +46,9 @@ async function startAR() {
   const robot = gltf.scene;
   robot.scale.set(0.4, 0.4, 0.4);
   robot.position.set(0, -0.3, 0);
+
+  // aluksi piilossa → näkyy kun target löytyy
+  robot.visible = false;
 
   anchor.group.add(robot);
 
@@ -76,10 +71,14 @@ async function startAR() {
 
     const texture = new THREE.CanvasTexture(canvas);
 
-    const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
-    const geometry = new THREE.PlaneGeometry(1, 0.5);
+    const material = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true
+    });
 
+    const geometry = new THREE.PlaneGeometry(1, 0.5);
     const mesh = new THREE.Mesh(geometry, material);
+
     mesh.position.set(0, y, 0);
 
     return mesh;
@@ -91,11 +90,26 @@ async function startAR() {
   anchor.group.add(nameText);
   anchor.group.add(roleText);
 
+  // 🔁 näkyvyys targetin mukaan
+  anchor.onTargetFound = () => {
+    console.log("TARGET FOUND");
+    robot.visible = true;
+  };
+
+  anchor.onTargetLost = () => {
+    console.log("TARGET LOST");
+    robot.visible = false;
+  };
+
+  // 🚀 START
   await mindARThree.start();
 
   renderer.setAnimationLoop(() => {
     mixer.update(0.016);
+
+    // pieni pyöritys
     robot.rotation.y += 0.01;
+
     renderer.render(scene, camera);
   });
 }
